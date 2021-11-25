@@ -1,15 +1,20 @@
 variable "name" {
-  type = "string"
+  type        = string
+  description = "Secret name"
 }
 
 variable "key" {
-  type = "string"
+  type        = string
+  description = "Key to fetch"
 }
 
 variable "namespace" {
-  type = "string"
+  type        = string
+  default     = "default"
+  description = "Namespace"
 }
 
 variable "context" {
-  type = "string"
+  type        = string
+  description = "Kubernetes context"
 }
