@@ -19,3 +19,11 @@ variable "context" {
   description = "Kubernetes context"
   default     = "default"
 }
+
+variable "authinfo" {
+  type = object({
+    host : string,
+    cluster_ca_certificate : string
+    token : string
+  })
+}

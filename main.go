@@ -11,13 +11,23 @@ import (
 	"k8s.io/client-go/kubernetes"
 	_ "k8s.io/client-go/plugin/pkg/client/auth/oidc"
 	"k8s.io/client-go/tools/clientcmd"
+	"k8s.io/client-go/tools/clientcmd/api"
 )
 
+type AuthInfo struct {
+	Host          string `json:"host"`
+	CaCertificate string `json:"cluster_ca_certificate"`
+	Token         string `json:"token"`
+}
+
 type Query struct {
-	Namespace string `json:"namespace"`
-	Name      string `json:"name"`
-	Key       string `json:"key"`
-	Context   string `json:"context"`
+	Namespace     string `json:"namespace"`
+	Name          string `json:"name"`
+	Key           string `json:"key"`
+	Context       string `json:"context"`
+	Host          string `json:"host"`
+	CaCertificate string `json:"cluster_ca_certificate"`
+	Token         string `json:"token"`
 }
 
 type Result struct {
@@ -53,14 +63,32 @@ func main() {
 		fatal("missing or empty key parameter")
 	}
 
-	if q.Context == "" {
-		fatal("missing or empty context parameter")
+	// if q.Context == "" {
+	// 	fatal("missing or empty context parameter")
+	// }
+
+	if q.Host == "" {
+		fatal("missing or empty k8s host")
+	}
+
+	if q.CaCertificate == "" {
+		fatal("missing or empty k8s ca certificate")
+	}
+
+	if q.Token == "" {
+		fatal("missing or empty k8s token")
 	}
 
 	// Build kubernetes configuration
 	config, err := clientcmd.NewNonInteractiveDeferredLoadingClientConfig(
 		clientcmd.NewDefaultClientConfigLoadingRules(),
-		&clientcmd.ConfigOverrides{CurrentContext: q.Context}).ClientConfig()
+		&clientcmd.ConfigOverrides{
+			ClusterInfo: api.Cluster{
+				Server:                   q.Host,
+				CertificateAuthorityData: []byte(q.CaCertificate)},
+			AuthInfo: api.AuthInfo{
+				Token: q.Token,
+			}}).ClientConfig()
 
 	if err != nil {
 		fatal("cannot load Kubernetes configuration: %v", err)
@@ -89,5 +117,5 @@ func main() {
 	}
 
 	os.Stdout.Write(o)
-	return
+	// return
 }
