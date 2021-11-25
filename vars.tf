@@ -17,4 +17,5 @@ variable "namespace" {
 variable "context" {
   type        = string
   description = "Kubernetes context"
+  default     = "default"
 }
